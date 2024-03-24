@@ -54,8 +54,6 @@ if __name__ == "__main__":
     file_path = 'test.txt'
     points = read_coordinates(file_path)
 
-    print(points)
-
     D = float(input())
     M = int(input())
     K = int(input())
