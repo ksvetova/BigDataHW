@@ -7,7 +7,6 @@ def distance(a, b):
     d = math.sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
     return d 
 
-
 # function to implement the exact algorithm
 def ExactOutliers(points, D, M, K):
     outliers = []
@@ -54,6 +53,8 @@ if __name__ == "__main__":
 
     file_path = 'test.txt'
     points = read_coordinates(file_path)
+
+    print(points)
 
     D = float(input())
     M = int(input())
