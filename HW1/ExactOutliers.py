@@ -30,8 +30,8 @@ def ExactOutliers(points, D, M, K):
     if K > len(outliers):
         K = len(outliers)
     
+    print("first K outliers: ")
     for i in range(k, K):
-        print("first K outliers: ")
         print(ouliers_sort[i][0])
 
 
@@ -54,9 +54,9 @@ if __name__ == "__main__":
     file_path = 'test.txt'
     points = read_coordinates(file_path)
 
-    D = float(input())
-    M = int(input())
-    K = int(input())
+    D = float(input("D value: "))
+    M = int(input("M value: "))
+    K = int(input("K value: "))
 
     ExactOutliers(points, D, M, K)
 
