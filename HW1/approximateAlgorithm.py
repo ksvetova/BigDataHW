@@ -1,4 +1,5 @@
 from pyspark import SparkContext, SparkConf
+import csv
 
 def MRApproxOutliers(points_rdd, D, M, K):
     #count points in each cell
@@ -9,6 +10,7 @@ def MRApproxOutliers(points_rdd, D, M, K):
         return ((cell_i, cell_j), 1)
 
     cells_rdd = points_rdd.map(map_to_cell).reduceByKey(lambda a, b: a + b).cache()
+    print(cells_rdd)
 
     #collect cells_rdd locally
     cells = cells_rdd.collectAsMap()
@@ -42,16 +44,23 @@ if __name__ == "__main__":
     sc = SparkContext(conf=conf)
     
     points = []
-    with open('test.txt', "r") as file:
-        for line in file:
-            coord = line.strip().split(',')
-            points.append((float(coord[0]), float(coord[1])))
+    # with open('test.txt', "r") as file:
+    #     for line in file:
+    #         coord = line.strip().split(',')
+    #         points.append((float(coord[0]), float(coord[1])))
+
+    with open('uber-10k.csv', "r") as file:
+        csv_reader = csv.reader(file)
+        for row in csv_reader:
+            coord = tuple(map(float, row))
+            points.append(coord)
+
 
     points_rdd = sc.parallelize(points)
 
-    D = 10.0 
-    M = 2  
-    K = 2  
+    D = 0.2
+    M = 10  
+    K = 5
 
     MRApproxOutliers(points_rdd, D, M, K)
 
