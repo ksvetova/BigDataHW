@@ -29,15 +29,15 @@ def MRApproxOutliers(points_rdd, D, M, K):
     sure_outliers_count = cell_info_rdd.filter(lambda x: x[1][2] <= M).count()
     uncertain_points_count = cell_info_rdd.filter(lambda x: x[1][1] <= M and x[1][2] > M).count()
 
-    print("Sure outliers ({}-outliers): {}".format(M, sure_outliers_count))
-    print("Uncertain points: {}".format(uncertain_points_count))
+    print("Number of sure outliers ({}-outliers) = {}".format(M, sure_outliers_count))
+    print("Number of uncertain points = {}".format(uncertain_points_count))
 
     #get the first K non-empty cells sorted by size
     top_cells = cell_info_rdd.sortBy(lambda x: x[1][0], ascending=True).take(K)
 
     print("Top {} non-empty cells:".format(K))
     for cell, info in top_cells:
-        print("Cell ", str(cell)+": Size ", info[0])
+        print("Cell: ", str(cell)+": Size ", info[0])
 
 if __name__ == "__main__":
 
