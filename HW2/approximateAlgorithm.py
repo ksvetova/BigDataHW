@@ -34,11 +34,11 @@ def MRApproxOutliers(points_rdd, D, M):
     print("Number of sure outliers = {}".format(sure_outliers_count))
     print("Number of uncertain points = {}".format(uncertain_points_count))
     
-    sorted_rdd = cell_info_rdd.sortBy(lambda x: x[1][0])
-    sorted_cells = sorted_rdd.collect()
+    # sorted_rdd = cell_info_rdd.sortBy(lambda x: x[1][0])
+    # sorted_cells = sorted_rdd.collect()
 
-    for cell, info in sorted_cells:
-        print("Cell:", str(cell), "Size =", info[0])
+    # for cell, info in sorted_cells:
+    #     print("Cell:", str(cell), "Size =", info[0])
 
 
 if __name__ == "__main__":
