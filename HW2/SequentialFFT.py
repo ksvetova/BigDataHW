@@ -25,10 +25,11 @@ def SequentialFFT(P, K):
 
     return S
 
+# example to run
 
-P = [(1,2),(6,2),(3, 4),(5,6),(8,1),(9,6),(100,4) ]
-K = 2
+# P = [(1,2),(6,2),(3, 4),(5,6),(8,1),(9,6),(100,4) ]
+# K = 2
 
-centers = SequentialFFT(P, K)
-print("Centers:", centers)
+# centers = SequentialFFT(P, K)
+# print("Centers:", centers)
 
