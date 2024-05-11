@@ -22,13 +22,13 @@ def MRFFT(P, K):
     coreset = P.mapPartitions(FFT).collect()
 
     r1_time = time.time() - start_time
-    print("Running time of MRFFT Round 1 = ", r1_time)
+    print("Running time of MRFFT Round 1 =", r1_time)
     
     # R2
     start_time = time.time()
     centers = SequentialFFT(coreset, K)
     r2_time = time.time() - start_time
-    print("Running time of MRFFT Round 2 = ", r2_time)
+    print("Running time of MRFFT Round 2 =", r2_time)
     
     broadcast_centers = sc.broadcast(centers)
     
@@ -36,7 +36,7 @@ def MRFFT(P, K):
     start_time = time.time()
     max_distance = P.map(lambda x: max(d(x, c) for c in broadcast_centers.value)).reduce(max)
     r3_time = time.time() - start_time
-    print("Running time of MRFFT Round 3 = ", r3_time)
+    print("Running time of MRFFT Round 3 =", r3_time)
 
     return max_distance
 
@@ -60,20 +60,20 @@ if __name__ == "__main__":
     inputPoints = rawData.map(parse_point).repartition(L).persist()
     
     # Print the command-line arguments
-    print(input_file, "M:", M, "K:", K, "L:", L)
+    print(input_file, "M="+str(M)+" K="+str(K)+" L="+str(L))
     
     # Print the total number of points
-    print("Total number of points:", inputPoints.count())
+    print("Total number of points =", inputPoints.count())
     
     # Execute MRFFT
     D = MRFFT(inputPoints, K)
-    print("Radius = ", D)
+    print("Radius =", D)
     
     # Execute MRApproxOutliers
     start_time = time.time()
     MRApproxOutliers(inputPoints, D, M)
     total_time = time.time() - start_time
-    print("Running time of MRApproxOutliers = ", total_time)
+    print("Running time of MRApproxOutliers =", total_time)
     
     # Stop the Spark context
     sc.stop()
