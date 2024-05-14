@@ -26,7 +26,7 @@ def SequentialFFT(P, K):
 # Map Reduce algorithm
 def MRFFT(P, K):
     
-    start_time = time.time()
+    start_time = time.monotonic()
     # R1
     def FFT(iterator):
         points = list(iterator)
@@ -34,22 +34,22 @@ def MRFFT(P, K):
 
     coreset = P.mapPartitions(FFT).collect()
 
-    time_r1 = time.time() - start_time
-    print("Running time of MRFFT Round 1 =", time_r1)
+    time_r1 = time.monotonic() - start_time
+    print("Running time of MRFFT Round 1 =", int(time_r1*1000), "ms")
 
     # R2
-    start_time = time.time()
+    start_time = time.monotonic()
     centers = SequentialFFT(coreset, K)
-    time_r2 = time.time() - start_time
-    print("Running time of MRFFT Round 2 =", time_r2)
+    time_r2 = time.monotonic() - start_time
+    print("Running time of MRFFT Round 2 =", int(time_r2*1000), "ms")
     
     # R3
-    start_time = time.time()
+    start_time = time.monotonic()
     broadcast_centers = sc.broadcast(centers)
     centers_list = broadcast_centers.value 
     max_radius = P.map(lambda x: min(distance(x, c) for c in centers_list)).reduce(lambda x, y: max(x, y))
-    r3_time = time.time() - start_time
-    print("R3 time:", r3_time)
+    r3_time = time.monotonic() - start_time
+    print("Running time of MRFFT Round 3 =", int(r3_time*1000), "ms")
     return max_radius
 
 
@@ -70,6 +70,7 @@ if __name__ == "__main__":
     
     # Create a Spark context
     conf = SparkConf().setAppName("G011HW2.py")
+    conf.set("spark.locality.wait", "0s")
     sc = SparkContext(conf=conf)
     sc.setLogLevel("WARN")
     
@@ -88,10 +89,10 @@ if __name__ == "__main__":
     print("Radius =", D)
     
     # Execute MRApproxOutliers
-    start_time = time.time()
+    start_time = time.monotonic()
     MRApproxOutliers(inputPoints, D, M)
-    total_time = time.time() - start_time
-    print("Running time of MRApproxOutliers =", total_time)
+    total_time = time.monotonic() - start_time
+    print('Running time of MRApproxOutliers =', int(total_time*1000), "ms")
     
     # Stop the Spark context
     sc.stop()
