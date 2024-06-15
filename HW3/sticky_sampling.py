@@ -5,6 +5,7 @@ import sys
 import random
 import threading
 from collections import defaultdict
+import math 
 
 #Sticky Sampling global variables
 epsilon = None
@@ -22,12 +23,13 @@ def sticky_sampling_init(epsilon_val, delta_val):
     next_check = bucket_size
 
 def sticky_sampling_add(item):
-    global num_elements, data, next_check, epsilon, bucket_size
+    global num_elements, data, next_check, epsilon, bucket_size, phi
     num_elements += 1
     if item in data:
         data[item] += 1
     else:
-        if len(data) < bucket_size or random.random() < epsilon:
+        sampling_rate = (math.log(1 / (delta * phi), math.e) / epsilon)/num_elements
+        if len(data) < bucket_size or random.random() < sampling_rate:
             data[item] = 1
 
     if num_elements >= next_check:
@@ -35,8 +37,8 @@ def sticky_sampling_add(item):
         next_check += bucket_size
 
 def sticky_sampling_remove_rare_items():
-    global data, epsilon, num_elements
-    threshold = epsilon * num_elements
+    global data, epsilon, phi, num_elements
+    threshold = (phi - epsilon) * num_elements
     keys_to_remove = [k for k, v in data.items() if v <= threshold]
     for k in keys_to_remove:
         del data[k]
@@ -48,7 +50,7 @@ def sticky_sampling_get_frequent_items():
 
 #Operations to perform after receiving an RDD
 def process_batch(time, batch):
-    global streamLength, histogram, THRESHOLD
+    global streamLength, THRESHOLD
     batch_size = batch.count()
     #If we already have enough points, skip this batch.
     if streamLength[0] >= THRESHOLD:
@@ -60,7 +62,6 @@ def process_batch(time, batch):
 
     #Update the streaming state
     for item in batch_items:
-        histogram[item] += 1
         sticky_sampling_add(item)
 
     if streamLength[0] >= THRESHOLD:
@@ -85,8 +86,6 @@ if __name__ == '__main__':
     stopping_condition = threading.Event()
 
     streamLength = [0] 
-    #Hash Table for the distinct elements
-    histogram = defaultdict(int) 
     sticky_sampling_init(epsilon_val, delta)
 
     stream = ssc.socketTextStream("algo.dei.unipd.it", portExp, StorageLevel.MEMORY_AND_DISK)
@@ -105,7 +104,7 @@ if __name__ == '__main__':
     print("Estimated frequent items:")
 
     for item in sorted(sticky_sampling_frequent_items.keys()):
-        if histogram[item] >= phi * n:
+        if sticky_sampling_frequent_items[item] >= (phi - epsilon) * n:
             print(f"{item} +")
         else:
             print(f"{item} -")
